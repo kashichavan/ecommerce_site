@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Seller Home</title>
+
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            background: #f6f7fb;
+            color: #111827;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: #ffffff;
+            padding: 18px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 600;
+            color: #4f46e5;
+        }
+
+        .nav-links a {
+            margin-left: 25px;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .nav-links a:hover {
+            color: #4f46e5;
+        }
+
+        .nav-links .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            background: #4f46e5;
+            color: white;
+        }
+
+        .nav-links .btn:hover {
+            background: #4338ca;
+            color: white;
+        }
+
+        /* Page content */
+        .hero {
+            padding: 80px 40px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 36px;
+            margin-bottom: 12px;
+        }
+
+        .hero p {
+            font-size: 16px;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<div class="navbar">
+    <div class="logo">Seller Portal</div>
+
+    <div class="nav-links">
+        {% if user.is_authenticated %}
+            <h1> {{ user.username }} </h1>
+        {% else %}
+        <a href="{% url 'sellers:login_seller' %}">Login</a>
+        <a href="{% url 'sellers:register_seller' %}" class="btn">Register</a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="hero">
+    <h1>Welcome to Seller Portal</h1>
+    <p>Register or login to manage your store.</p>
+</div>
+
+</body>
+</html>
