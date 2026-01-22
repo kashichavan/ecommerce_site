@@ -85,6 +85,7 @@
     <div class="nav-links">
         {% if user.is_authenticated %}
             <h1> {{ user.username }} </h1>
+            <a href="{% url 'sellers:logout_seller' %}">Logout</a>
         {% else %}
         <a href="{% url 'sellers:login_seller' %}">Login</a>
         <a href="{% url 'sellers:register_seller' %}" class="btn">Register</a>
