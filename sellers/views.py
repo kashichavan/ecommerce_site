@@ -1,7 +1,7 @@
 from django.shortcuts import render,HttpResponse,redirect
 from django.contrib.auth import login,logout,authenticate
 from accounts.models import CustomUser,Seller_Profile
-from product.models import Category,Product
+from product.models import Category,Product,Product_Image
 
 # Create your views here.
 def register_seller(request):
@@ -78,6 +78,7 @@ def logout_seller(request):
 def add_product(request):
     if request.method.lower()=='post':
         seller_id=Seller_Profile.objects.get(user_id=request.user)
+        print(request.user,seller_id)
         category=request.POST.get('category').lower()
         cat,created=Category.objects.get_or_create(name=category)
         name=request.POST.get('name')
@@ -88,22 +89,60 @@ def add_product(request):
         is_activate=request.POST.get('is_activate')
         if is_activate=='true':
             is_activate=True
-        
-        prod,created=Product.objects.get_or_create(seller_id=seller_id,category_id=cat,name=name,price=price,
-            discount_percentage=disc_price,stock=stock,is_active=is_activate)
 
-        if created:
-            return HttpResponse("Added new Prod")
+        prod=Product.objects.filter(seller_id=seller_id,category_id=cat,name=name)
+        if len(prod) == 0 :
+            prod,created=Product.objects.get_or_create(seller_id=seller_id,category_id=cat,name=name,price=price,
+                discount_percentage=disc_price,stock=stock,is_active=is_activate)
+
+            if created:
+                return HttpResponse("Added new Prod")
         else:
-            return HttpResponse("Prod is already exist")
+            prod=prod[0]
+            prod.stock+=int(stock)
+            prod.save()
+            return HttpResponse("Stock is Updated Prod is already exist")
     
 
     return render(request,'seller/add_product.html')
+
+
+
+def display_products(request,seller_id):
+    seller_id=Seller_Profile.objects.get(user_id=seller_id)
+    products=Product.objects.filter(seller_id=seller_id)
+    all_categories=Category.objects.all()
+
+    
+    return render(request,'seller/product_view.html',{'products':products,'category':all_categories})
         
 
 
+def product_detail(request,pid):
+    prod=Product.objects.get(id=pid)
+    return render(request,'seller/product_detail.html',{'product':prod})
 
 
+
+def edit_product(request,pid):
+    prod=Product.objects.get(id=pid)
+    if request.method.lower()=='post':
+        name=request.POST.get('name')
+        price=request.POST.get('price')
+        descp=request.POST.get('descp')
+        disc_price=request.POST.get('desc_price')
+        stock=request.POST.get('stock')
+        is_activate=request.POST.get('is_activate')
+        if is_activate=='true':
+            is_activate=True
+        
+        prod,created=Product.objects.update_or_create(id=pid,defaults={'name':name,'price':price,'descp':descp,
+            'disc_price':disc_price,'stock':stock,'is_activate':is_activate})
+        
+        return HttpResponse("Product is updated")
+
+    else:
+        return render(request,'seller/edit_product.html',{'product':Product})
 
 
 

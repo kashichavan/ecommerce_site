@@ -1,123 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Seller Login</title>
+{% extends 'seller/base.html' %}
+{% block title %}Login{% endblock %}
 
-    <!-- Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-
-    <style>
-        * {
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
-        }
-
-        body {
-            min-height: 100vh;
-            background: #f6f7fb;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .container {
-            width: 520px;
-            background: #ffffff;
-            padding: 50px 60px;
-            border-radius: 14px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
-        }
-
-        h1 {
-            margin-bottom: 10px;
-            font-size: 28px;
-            font-weight: 600;
-            color: #111827;
-        }
-
-        p {
-            margin-bottom: 30px;
-            color: #6b7280;
-            font-size: 15px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 6px;
-            font-size: 14px;
-            font-weight: 500;
-            color: #374151;
-        }
-
-        input {
-            width: 100%;
-            padding: 14px 16px;
-            margin-bottom: 22px;
-            font-size: 15px;
-            border-radius: 8px;
-            border: 1px solid #d1d5db;
-            outline: none;
-        }
-
-        input:focus {
-            border-color: #6366f1;
-            box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
-        }
-
-        button {
-            width: 100%;
-            padding: 15px;
-            background: #4f46e5;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background: #4338ca;
-        }
-
-        .extra {
-            margin-top: 25px;
-            text-align: center;
-            font-size: 14px;
-            color: #6b7280;
-        }
-
-        .extra a {
-            color: #4f46e5;
-            text-decoration: none;
-            font-weight: 500;
-        }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <h1>Seller Login</h1>
-    <p>Login to access your seller dashboard.</p>
+{% block content %}
+<div class="card" style="max-width:420px;margin:auto;">
+    <h2>Seller Login</h2>
 
     <form method="post">
         {% csrf_token %}
-
-        <label>Username</label>
-        <input type="text" name="username" required>
-
-        <label>Password</label>
-        <input type="password" name="password" required>
-
-        <button type="submit">Login</button>
+        <input name="username" placeholder="Username" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <button>Login</button>
     </form>
-
-    <div class="extra">
-        Don’t have a seller account?
-        <a href="{% url 'sellers:register_seller' %}">Register</a>
-    </div>
 </div>
-
-</body>
-</html>
+{% endblock %}

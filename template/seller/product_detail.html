@@ -1,0 +1,20 @@
+{% extends 'seller/base.html' %}
+{% block title %}Product Detail{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h3>{{ product.name }}</h3>
+    <p>Category: {{ product.category_id.name }}</p>
+    <p>Price: ₹{{ product.price }}</p>
+    <p>Discount: {{ product.discount_percentage }}</p>
+    <p>Stock: {{ product.stock }}</p>
+    <p>Status: {{ product.is_active|yesno:"Active,Inactive" }}</p>
+
+    <button
+        hx-get="{% url 'sellers:edit_product' product.id %}"
+        hx-target="#detail-box"
+        hx-swap="innerHTML">
+        Edit Product
+    </button>
+</div>
+{% endblock %}

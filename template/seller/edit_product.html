@@ -1,0 +1,30 @@
+{% extends 'seller/base.html' %}
+{% block title %}Edit Product{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h3>Edit Product</h3>
+
+    <form
+        hx-post="{% url 'sellers:edit_product' product.id %}"
+        hx-target="#detail-box"
+        hx-swap="innerHTML">
+
+        {% csrf_token %}
+
+        <input name="name" value="{{ product.name }}">
+        <input name="price" value="{{ product.price }}">
+        <input name="desc_price" value="{{ product.discount_percentage }}">
+        <input name="stock" value="{{ product.stock }}">
+        <textarea name="descp">{{ product.descp }}</textarea>
+
+        <label>
+            <input type="checkbox" name="is_activate" value="true"
+                   {% if product.is_active %}checked{% endif %}>
+            Active
+        </label>
+
+        <button type="submit">Update</button>
+    </form>
+</div>
+{% endblock %}

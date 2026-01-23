@@ -1,0 +1,39 @@
+{% extends 'seller/base.html' %}
+{% block title %}My Products{% endblock %}
+
+{% block content %}
+<h2>My Products</h2>
+
+{% for cat in category %}
+    <h3>{{ cat.name }}</h3>
+
+    <div class="grid">
+        {% for product in products %}
+            {% if product.category_id.id == cat.id %}
+                <div class="product">
+                    <h4>{{ product.name }}</h4>
+                    <p>₹ {{ product.price }}</p>
+                    <p>Stock: {{ product.stock }}</p>
+
+                    <button
+                        hx-get="{% url 'sellers:product_detail' product.id %}"
+                        hx-target="#detail-box"
+                        hx-swap="innerHTML">
+                        View
+                    </button>
+
+                    <button
+                        hx-get="{% url 'sellers:edit_product' product.id %}"
+                        hx-target="#detail-box"
+                        hx-swap="innerHTML">
+                        Edit
+                    </button>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endfor %}
+
+<hr>
+<div id="detail-box"></div>
+{% endblock %}
