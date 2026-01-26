@@ -1,0 +1,259 @@
+{% extends 'customer/base.html' %}
+{% block title %}{{ prod.name }} | Product Detail{% endblock %}
+
+{% block content %}
+
+<style>
+/* ---------- Container ---------- */
+.container-detail {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 20px;
+    animation: fadeUp 0.5s ease;
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- Card ---------- */
+.product-card {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 30px;
+    display: grid;
+    grid-template-columns: 1fr 1.3fr;
+    gap: 40px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+/* ---------- Image ---------- */
+.image-box {
+    background: #f9fafb;
+    border-radius: 12px;
+    height: 360px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.image-box img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
+.image-box:hover img {
+    transform: scale(1.05);
+}
+
+/* ---------- Info ---------- */
+.info h1 {
+    font-size: 26px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+/* ---------- Badge ---------- */
+.badge {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 14px;
+}
+
+.active {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.inactive {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+/* ---------- Price ---------- */
+.price-box {
+    margin: 16px 0;
+}
+
+.final-price {
+    font-size: 30px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.price-meta {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-top: 4px;
+}
+
+.actual-price {
+    text-decoration: line-through;
+    color: #6b7280;
+    font-size: 16px;
+}
+
+.off {
+    color: #16a34a;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+/* ---------- Stock ---------- */
+.stock {
+    font-size: 14px;
+    margin: 10px 0;
+    color: #374151;
+}
+
+/* ---------- Actions ---------- */
+.actions {
+    display: flex;
+    gap: 16px;
+    margin-top: 24px;
+}
+
+.btn {
+    flex: 1;
+    padding: 14px;
+    border-radius: 10px;
+    border: none;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.25s ease;
+}
+
+.cart-btn {
+    background: #ff9f00;
+    color: white;
+}
+
+.cart-btn:hover {
+    background: #fb8c00;
+    transform: translateY(-2px);
+}
+
+.buy-btn {
+    background: #2874f0;
+    color: white;
+}
+
+.buy-btn:hover {
+    background: #1d4ed8;
+    transform: translateY(-2px);
+}
+
+/* ---------- Description ---------- */
+.desc {
+    margin-top: 30px;
+}
+
+.desc h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.desc p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #374151;
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 768px) {
+    .product-card {
+        grid-template-columns: 1fr;
+    }
+
+    .image-box {
+        height: 280px;
+    }
+}
+</style>
+
+<div class="container-detail">
+
+    <div class="product-card">
+
+        <!-- Image -->
+        <div class="image-box">
+            {% with prod.product_image_set.first as img %}
+                {% if img and img.image %}
+                    <img src="{{ img.image.url }}" alt="{{ prod.name }}">
+                {% else %}
+                    <i class="fa-regular fa-image" style="font-size:50px;color:#9ca3af"></i>
+                {% endif %}
+            {% endwith %}
+        </div>
+
+        <!-- Info -->
+        <div class="info">
+            <h1>{{ prod.name }}</h1>
+
+            <span class="badge {% if prod.is_active %}active{% else %}inactive{% endif %}">
+                {{ prod.is_active|yesno:"Available,Unavailable" }}
+            </span>
+
+            <!-- Price -->
+            <div class="price-box">
+                <div class="final-price">
+                    ₹{{ prod.discount_price|floatformat:0 }}
+                </div>
+                <div class="price-meta">
+                    <span class="actual-price">
+                        ₹{{ prod.price|floatformat:0 }}
+                    </span>
+                    <span class="off">
+                        {{ prod.discount_percentage }}% off
+                    </span>
+                </div>
+            </div>
+
+            <!-- Stock -->
+            <div class="stock">
+                {% if prod.stock > 0 %}
+                    In Stock ({{ prod.stock }})
+                {% else %}
+                    Out of Stock
+                {% endif %}
+            </div>
+
+            <!-- Actions -->
+            <div class="actions">
+                <button class="btn cart-btn">
+                    <i class="fa-solid fa-cart-plus"></i> Add to Cart
+                </button>
+                <button class="btn buy-btn">
+                    <i class="fa-solid fa-bolt"></i> Buy Now
+                </button>
+            </div>
+
+            <!-- Description -->
+            <div class="desc">
+                <h3>Product Description</h3>
+                <p>
+                    High quality product with excellent performance and durability.
+                    Designed to meet your daily needs with reliability and comfort.
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+/* entry animation */
+document.querySelector('.product-card').style.animation = "fadeUp 0.5s ease";
+</script>
+
+{% endblock %}

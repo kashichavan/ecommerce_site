@@ -12,5 +12,7 @@ urlpatterns=[
     path('products/<int:seller_id>/', display_products, name='display_products'),
     path('product/<int:pid>/', product_detail, name='product_detail'),
     path('product/edit/<int:pid>/', edit_product, name='edit_product'),
+    path('product/<int:pid>/images/', add_image, name='add_image'),
+
 
 ]

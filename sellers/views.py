@@ -1,148 +1,178 @@
-from django.shortcuts import render,HttpResponse,redirect
-from django.contrib.auth import login,logout,authenticate
-from accounts.models import CustomUser,Seller_Profile
-from product.models import Category,Product,Product_Image
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.decorators import login_required
 
-# Create your views here.
+from accounts.models import CustomUser, Seller_Profile
+from product.models import Category, Product
+
+
+# ---------------- REGISTER SELLER ----------------
 def register_seller(request):
-    if request.method.lower()=='post':
-        try:
-            email=request.POST.get('email')
-            password=request.POST.get('password')
-            username=request.POST.get('username')
-            store_name=request.POST.get('store_name')
-            gst_num=request.POST.get('gst_num')
+    if request.method.lower() == 'post':
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        store_name = request.POST.get('store_name')
+        gst_num = request.POST.get('gst_num')
 
-            if CustomUser.objects.filter(username=username).exists():
-                return HttpResponse(
-                "<div style='color:red'>❌ Username already exists</div>",
-                status=400
-            )
-    
+        if CustomUser.objects.filter(username=username).exists():
+            return redirect('sellers:register_seller')
 
-            if CustomUser.objects.filter(email=email).exists():
-                return HttpResponse(
-                "<div style='color:red'>❌ Email already exists</div>",
-                status=400
-            )
+        if CustomUser.objects.filter(email=email).exists():
+            return redirect('sellers:register_seller')
 
-            user=CustomUser.objects.create_user(username=username,password=password,email=email)
-            seller,created=Seller_Profile.objects.get_or_create(user_id=user,store_name=store_name,gst_number=gst_num)
-            if created:
-                return HttpResponse("account created")
-            else:
-                return HttpResponse("account created")
-        except Exception as e:
-            return HttpResponse(e)
-    
-    return render(request,'seller/register.html')
+        user = CustomUser.objects.create_user(
+            username=username,
+            email=email,
+            password=password
+        )
+
+        Seller_Profile.objectscreate(
+            user_id=user,
+            store_name=store_name,
+            gst_number=gst_num
+        )
+
+        return redirect('sellers:login_seller')
+
+    return render(request, 'seller/register.html')
 
 
-
-def home(request):
-    user=request.user
-    return render(request,'seller/home.html',{'user':user})
-
-
-
+# ---------------- LOGIN ----------------
 def login_seller(request):
-    if request.method.lower()=="post":
-        username=request.POST.get('username')
-        password=request.POST.get('password')
-        user=authenticate(username=username,password=password)
+    if request.method.lower() == 'post':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        user = authenticate(username=username, password=password)
         if user:
-            login(request,user)
-            if Seller_Profile.objects.filter(user_id=user).exists():
-                return  redirect('sellers:home')
-            
-            else:
-                return HttpResponse("this customer")
-        else:
-            return HttpResponse("Inavlid creds")
-    
-    return render(request,'seller/login.html')
+            login(request, user)
+            return redirect('sellers:home')
 
-                
+        return redirect('sellers:login_seller')
+
+    return render(request, 'seller/login.html')
 
 
-
-
+# ---------------- LOGOUT ----------------
+@login_required(login_url='sellers:login_seller')
 def logout_seller(request):
     logout(request)
-    return redirect('sellers:home')
+    return redirect('sellers:login_seller')
 
 
+# ---------------- HOME ----------------
+@login_required(login_url='sellers:login_seller')
+def home(request):
+    return render(request, 'seller/home.html')
 
 
-
+# ---------------- ADD PRODUCT ----------------
+@login_required(login_url='sellers:login_seller')
 def add_product(request):
-    if request.method.lower()=='post':
-        seller_id=Seller_Profile.objects.get(user_id=request.user)
-        print(request.user,seller_id)
-        category=request.POST.get('category').lower()
-        cat,created=Category.objects.get_or_create(name=category)
-        name=request.POST.get('name')
-        price=request.POST.get('price')
-        descp=request.POST.get('descp')
-        disc_price=request.POST.get('desc_price')
-        stock=request.POST.get('stock')
-        is_activate=request.POST.get('is_activate')
-        if is_activate=='true':
-            is_activate=True
+    if request.method.lower() == 'post':
+        seller = Seller_Profile.objects.get(user_id=request.user)
 
-        prod=Product.objects.filter(seller_id=seller_id,category_id=cat,name=name)
-        if len(prod) == 0 :
-            prod,created=Product.objects.get_or_create(seller_id=seller_id,category_id=cat,name=name,price=price,
-                discount_percentage=disc_price,stock=stock,is_active=is_activate)
+        category_name = request.POST.get('category').lower()
+        category, _ = Category.objects.get_or_create(name=category_name)
 
-            if created:
-                return HttpResponse("Added new Prod")
+        name = request.POST.get('name')
+        price = request.POST.get('price')
+        descp = request.POST.get('descp')
+        disc_price = request.POST.get('desc_price') or 0
+        stock = int(request.POST.get('stock'))
+        is_active = request.POST.get('is_activate') == 'true'
+
+        product = Product.objects.filter(
+            seller_id=seller,
+            category_id=category,
+            name=name
+        ).first()
+
+        if product:
+            product.stock += stock
+            product.save()
         else:
-            prod=prod[0]
-            prod.stock+=int(stock)
-            prod.save()
-            return HttpResponse("Stock is Updated Prod is already exist")
-    
+            Product.objects.create(
+                seller_id=seller,
+                category_id=category,
+                name=name,
+                price=price,
+                descp=descp,
+                discount_percentage=disc_price,
+                stock=stock,
+                is_active=is_active
+            )
 
-    return render(request,'seller/add_product.html')
+        return redirect('sellers:display_products', seller_id=request.user.id)
 
-
-
-def display_products(request,seller_id):
-    seller_id=Seller_Profile.objects.get(user_id=seller_id)
-    products=Product.objects.filter(seller_id=seller_id)
-    all_categories=Category.objects.all()
-
-    
-    return render(request,'seller/product_view.html',{'products':products,'category':all_categories})
-        
+    return render(request, 'seller/add_product.html')
 
 
-def product_detail(request,pid):
-    prod=Product.objects.get(id=pid)
-    return render(request,'seller/product_detail.html',{'product':prod})
+# ---------------- DISPLAY PRODUCTS ----------------
+@login_required(login_url='sellers:login_seller')
+def display_products(request, seller_id):
+    seller = get_object_or_404(Seller_Profile, user_id=seller_id)
+    products = Product.objects.filter(seller_id=seller)
+    categories = Category.objects.all()
+
+    return render(
+        request,
+        'seller/product_view.html',
+        {
+            'products': products,
+            'category': categories
+        }
+    )
+
+
+# ---------------- PRODUCT DETAIL ----------------
+@login_required(login_url='sellers:login_seller')
+def product_detail(request, pid):
+    product = get_object_or_404(Product, id=pid)
+    return render(request, 'seller/product_detail.html', {'product': product})
+
+
+# ---------------- EDIT PRODUCT ----------------
+@login_required(login_url='sellers:login_seller')
+def edit_product(request, pid):
+    product = get_object_or_404(Product, id=pid)
+
+    if request.method.lower() == 'post':
+        product.name = request.POST.get('name')
+        product.price = request.POST.get('price')
+        product.descp = request.POST.get('descp')
+        product.discount_percentage = request.POST.get('desc_price')
+        product.stock = request.POST.get('stock')
+        product.is_active = request.POST.get('is_activate') == 'true'
+
+        product.save()
+        return redirect('sellers:product_detail', pid=product.id)
+
+    return render(request, 'seller/edit_product.html', {'product': product})
 
 
 
-def edit_product(request,pid):
-    prod=Product.objects.get(id=pid)
-    if request.method.lower()=='post':
-        name=request.POST.get('name')
-        price=request.POST.get('price')
-        descp=request.POST.get('descp')
-        disc_price=request.POST.get('desc_price')
-        stock=request.POST.get('stock')
-        is_activate=request.POST.get('is_activate')
-        if is_activate=='true':
-            is_activate=True
-        
-        prod,created=Product.objects.update_or_create(id=pid,defaults={'name':name,'price':price,'descp':descp,
-            'disc_price':disc_price,'stock':stock,'is_activate':is_activate})
-        
-        return HttpResponse("Product is updated")
 
-    else:
-        return render(request,'seller/edit_product.html',{'product':Product})
+from django.shortcuts import render, redirect, get_object_or_404
+from product.models import Product, Product_Image
 
+def add_image(request, pid):
+    product = get_object_or_404(Product, id=pid)
 
+    if request.method.lower() == "post":
+        images = request.FILES.getlist('images')  # 👈 IMPORTANT
 
+        for img in images:
+            Product_Image.objects.create(
+                prod_id=product,
+                image=img
+            )
+
+        return redirect('sellers:product_detail', pid=product.id)
+
+    return render(
+        request,
+        'seller/upload_image.html',
+        {'product': product}
+    )

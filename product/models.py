@@ -15,6 +15,11 @@ class Product(models.Model):
     is_active=models.BooleanField(default=False)
     created_date=models.DateTimeField(auto_now_add=True)
 
+
+    def create_discount_price(self):
+        acc_price=self.price-(self.price*(self.discount_percentage/100))
+        return acc_price
+
 from cloudinary.models import CloudinaryField
 
 class Product_Image(models.Model):

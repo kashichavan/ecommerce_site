@@ -2,21 +2,156 @@
 {% block title %}Register{% endblock %}
 
 {% block content %}
-<div class="card" style="max-width:520px;margin:auto;">
-    <h2>Seller Registration</h2>
 
-    <form hx-post="{% url 'sellers:register_seller' %}"
-          hx-target="#response"
-          hx-swap="innerHTML">
-        {% csrf_token %}
-        <input name="username" placeholder="Username" required>
-        <input name="email" placeholder="Email" required>
-        <input type="password" name="password" placeholder="Password" required>
-        <input name="store_name" placeholder="Store Name">
-        <input name="gst_num" placeholder="GST Number">
-        <button>Create Account</button>
-    </form>
+<style>
+/* ---------- Register Wrapper ---------- */
+.register-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 140px);
+    animation: fadeSlide 0.5s ease;
+}
 
-    <div id="response"></div>
+@keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- Card ---------- */
+.register-card {
+    width: 100%;
+    max-width: 520px;
+    background: #ffffff;
+    padding: 36px;
+    border-radius: 20px;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.12);
+}
+
+.register-card h2 {
+    text-align: center;
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #111827;
+}
+
+.register-card p {
+    text-align: center;
+    font-size: 14px;
+    color: #6b7280;
+    margin-bottom: 28px;
+}
+
+/* ---------- Form Grid ---------- */
+.register-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.register-form input,
+.register-form button {
+    grid-column: span 2;
+}
+
+/* ---------- Inputs ---------- */
+.register-form input {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 1px solid #d1d5db;
+    font-size: 14px;
+    background: #f9fafb;
+    transition: all 0.25s ease;
+}
+
+.register-form input:focus {
+    outline: none;
+    border-color: #4f46e5;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(79,70,229,0.15);
+}
+
+/* ---------- Button ---------- */
+.register-form button {
+    margin-top: 8px;
+    padding: 15px;
+    background: linear-gradient(135deg, #4f46e5, #4338ca);
+    color: #ffffff;
+    border: none;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.register-form button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 26px rgba(79,70,229,0.35);
+}
+
+.register-form button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* ---------- Status Messages ---------- */
+.msg {
+    margin-top: 18px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.msg.success {
+    color: #16a34a;
+}
+
+.msg.error {
+    color: #dc2626;
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 640px) {
+    .register-form {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<div class="register-wrapper">
+    <div class="register-card">
+        <h2>Seller Registration</h2>
+        <p>Create your seller account and start selling</p>
+
+        <form method="POST" class="register-form" onsubmit="registerLoading()">
+            {% csrf_token %}
+
+            <input name="username" placeholder="Username" required>
+            <input name="email" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <input name="store_name" placeholder="Store Name">
+            <input name="gst_num" placeholder="GST Number">
+
+            <button id="registerBtn">Create Account</button>
+        </form>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="msg {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    </div>
 </div>
+
+<script>
+function registerLoading() {
+    const btn = document.getElementById("registerBtn");
+    btn.innerText = "Creating account...";
+    btn.disabled = true;
+}
+</script>
+
 {% endblock %}

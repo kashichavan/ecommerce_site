@@ -2,38 +2,179 @@
 {% block title %}My Products{% endblock %}
 
 {% block content %}
-<h2>My Products</h2>
+
+<style>
+/* ---------- Page Header ---------- */
+.page-title {
+    font-size: 26px;
+    font-weight: 600;
+    margin-bottom: 24px;
+    animation: fadeSlide 0.5s ease;
+}
+
+@keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- Category ---------- */
+.category-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 30px 0 14px;
+    color: #111827;
+}
+
+/* ---------- Grid ---------- */
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+}
+
+/* ---------- Product Card ---------- */
+.product-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 22px;
+    box-shadow: 0 16px 35px rgba(0,0,0,0.08);
+    transition: all 0.25s ease;
+    animation: cardFade 0.4s ease;
+}
+
+@keyframes cardFade {
+    from { opacity: 0; transform: scale(0.96); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+.product-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 22px 45px rgba(0,0,0,0.12);
+}
+
+.product-card h4 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.price {
+    font-size: 16px;
+    font-weight: 600;
+    color: #4f46e5;
+}
+
+.stock {
+    font-size: 14px;
+    color: #6b7280;
+    margin-bottom: 10px;
+}
+
+/* ---------- Status Badge ---------- */
+.status {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+    margin-bottom: 14px;
+}
+
+.active {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.inactive {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+/* ---------- Actions ---------- */
+.actions {
+    display: flex;
+    gap: 10px;
+}
+
+.view-btn,
+.edit-btn {
+    flex: 1;
+    text-align: center;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.25s ease;
+}
+
+.view-btn {
+    background: #f1f5f9;
+    color: #111827;
+}
+
+.view-btn:hover {
+    background: #e2e8f0;
+}
+
+.edit-btn {
+    background: linear-gradient(135deg, #4f46e5, #4338ca);
+    color: #ffffff;
+}
+
+.edit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px rgba(79,70,229,0.35);
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 640px) {
+    .page-title {
+        font-size: 22px;
+    }
+}
+</style>
+
+<h2 class="page-title">My Products</h2>
 
 {% for cat in category %}
-    <h3>{{ cat.name }}</h3>
+    <h3 class="category-title">{{ cat.name }}</h3>
 
-    <div class="grid">
+    <div class="product-grid">
         {% for product in products %}
             {% if product.category_id.id == cat.id %}
-                <div class="product">
+                <div class="product-card">
+
                     <h4>{{ product.name }}</h4>
-                    <p>₹ {{ product.price }}</p>
-                    <p>Stock: {{ product.stock }}</p>
+                    <div class="price">₹ {{ product.price }}</div>
+                    <div class="stock">Stock: {{ product.stock }}</div>
 
-                    <button
-                        hx-get="{% url 'sellers:product_detail' product.id %}"
-                        hx-target="#detail-box"
-                        hx-swap="innerHTML">
-                        View
-                    </button>
+                    <span class="status {% if product.is_active %}active{% else %}inactive{% endif %}">
+                        {{ product.is_active|yesno:"Active,Inactive" }}
+                    </span>
 
-                    <button
-                        hx-get="{% url 'sellers:edit_product' product.id %}"
-                        hx-target="#detail-box"
-                        hx-swap="innerHTML">
-                        Edit
-                    </button>
+                    <div class="actions">
+                        <a href="{% url 'sellers:product_detail' product.id %}" class="view-btn">
+                            View
+                        </a>
+                        <a href="{% url 'sellers:edit_product' product.id %}" class="edit-btn">
+                            Edit
+                        </a>
+                    </div>
+
                 </div>
             {% endif %}
         {% endfor %}
     </div>
 {% endfor %}
 
-<hr>
-<div id="detail-box"></div>
+<script>
+/* subtle hover animation enhancement */
+document.querySelectorAll('.product-card').forEach(card => {
+    card.addEventListener('mouseenter', () => {
+        card.style.transition = '0.25s';
+    });
+});
+</script>
+
 {% endblock %}

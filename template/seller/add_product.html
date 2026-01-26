@@ -2,28 +2,180 @@
 {% block title %}Add Product{% endblock %}
 
 {% block content %}
-<div class="card" style="max-width:700px;margin:auto;">
+
+<style>
+/* ---------- Card ---------- */
+.card {
+    max-width: 700px;
+    margin: 40px auto;
+    background: #ffffff;
+    padding: 32px;
+    border-radius: 16px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+    animation: fadeUp 0.6s ease;
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(15px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.card h2 {
+    margin-bottom: 24px;
+    font-size: 24px;
+    font-weight: 600;
+    color: #111827;
+}
+
+/* ---------- Form ---------- */
+form {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+}
+
+textarea,
+button,
+.switch {
+    grid-column: span 2;
+}
+
+/* ---------- Inputs ---------- */
+input,
+textarea {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    font-size: 14px;
+    background: #f9fafb;
+    transition: 0.25s ease;
+}
+
+textarea {
+    min-height: 110px;
+    resize: vertical;
+}
+
+input:focus,
+textarea:focus {
+    outline: none;
+    background: #ffffff;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+}
+
+/* ---------- Toggle ---------- */
+.switch {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    color: #374151;
+}
+
+.switch input {
+    width: 42px;
+    height: 22px;
+    appearance: none;
+    background: #d1d5db;
+    border-radius: 999px;
+    position: relative;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.switch input::before {
+    content: "";
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    background: #ffffff;
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    transition: 0.3s;
+}
+
+.switch input:checked {
+    background: #22c55e;
+}
+
+.switch input:checked::before {
+    transform: translateX(20px);
+}
+
+/* ---------- Button ---------- */
+button {
+    margin-top: 10px;
+    padding: 15px;
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.25s ease;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(79,70,229,0.3);
+}
+
+/* ---------- Messages ---------- */
+.msg {
+    margin-top: 18px;
+    font-size: 14px;
+}
+
+.msg.success { color: #16a34a; }
+.msg.error   { color: #dc2626; }
+
+/* ---------- Mobile ---------- */
+@media (max-width: 640px) {
+    form {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<div class="card">
     <h2>Add Product</h2>
 
-    <form hx-post="{% url 'sellers:add_product' %}"
-          hx-target="#response"
-          hx-swap="innerHTML">
+    <form method="POST" onsubmit="handleSubmit()">
         {% csrf_token %}
+
         <input name="name" placeholder="Product Name" required>
         <input name="category" placeholder="Category" required>
         <input name="price" placeholder="Price" required>
         <input name="desc_price" placeholder="Discount Price">
         <input name="stock" placeholder="Stock" required>
+
         <textarea name="descp" placeholder="Description"></textarea>
 
-        <label>
+        <label class="switch">
             <input type="checkbox" name="is_activate" value="true" checked>
-            Active
+            Active Product
         </label>
 
-        <button>Add Product</button>
+        <button id="submitBtn">Add Product</button>
     </form>
 
-    <div id="response"></div>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="msg {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
 </div>
+
+<script>
+function handleSubmit() {
+    const btn = document.getElementById("submitBtn");
+    btn.innerText = "Adding...";
+    btn.disabled = true;
+}
+</script>
+
 {% endblock %}

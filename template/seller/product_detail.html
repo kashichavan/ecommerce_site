@@ -2,19 +2,184 @@
 {% block title %}Product Detail{% endblock %}
 
 {% block content %}
-<div class="card">
-    <h3>{{ product.name }}</h3>
-    <p>Category: {{ product.category_id.name }}</p>
-    <p>Price: ₹{{ product.price }}</p>
-    <p>Discount: {{ product.discount_percentage }}</p>
-    <p>Stock: {{ product.stock }}</p>
-    <p>Status: {{ product.is_active|yesno:"Active,Inactive" }}</p>
 
-    <button
-        hx-get="{% url 'sellers:edit_product' product.id %}"
-        hx-target="#detail-box"
-        hx-swap="innerHTML">
-        Edit Product
-    </button>
+<style>
+/* ---------- Product Detail Card ---------- */
+.product-detail {
+    max-width: 720px;
+    margin: 30px auto;
+    background: #ffffff;
+    padding: 34px;
+    border-radius: 18px;
+    box-shadow: 0 20px 45px rgba(0,0,0,0.08);
+    animation: fadeSlide 0.5s ease;
+}
+
+@keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.product-detail h3 {
+    font-size: 26px;
+    font-weight: 600;
+    margin-bottom: 14px;
+    color: #111827;
+}
+
+/* ---------- Info Rows ---------- */
+.info {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+    margin: 24px 0;
+}
+
+.info-item {
+    background: #f9fafb;
+    padding: 16px 18px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    transition: 0.25s ease;
+}
+
+.info-label {
+    font-size: 13px;
+    color: #6b7280;
+    margin-bottom: 4px;
+}
+
+.info-value {
+    font-size: 16px;
+    font-weight: 500;
+    color: #111827;
+}
+
+/* ---------- Status ---------- */
+.status {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.active {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.inactive {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+/* ---------- Actions ---------- */
+.actions {
+    margin-top: 28px;
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.action-btn {
+    text-decoration: none;
+    padding: 14px 22px;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.25s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Edit */
+.edit-btn {
+    background: linear-gradient(135deg, #4f46e5, #4338ca);
+    color: #ffffff;
+}
+
+.edit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(79,70,229,0.35);
+}
+
+/* Upload Images */
+.upload-btn {
+    background: linear-gradient(135deg, #16a34a, #15803d);
+    color: #ffffff;
+}
+
+.upload-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(22,163,74,0.35);
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 640px) {
+    .info {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<div class="product-detail">
+
+    <h3>{{ product.name }}</h3>
+
+    <div class="info">
+        <div class="info-item">
+            <div class="info-label">Category</div>
+            <div class="info-value">{{ product.category_id.name }}</div>
+        </div>
+
+        <div class="info-item">
+            <div class="info-label">Price</div>
+            <div class="info-value">₹{{ product.price }}</div>
+        </div>
+
+        <div class="info-item">
+            <div class="info-label">Discount</div>
+            <div class="info-value">{{ product.discount_percentage }}%</div>
+        </div>
+
+        <div class="info-item">
+            <div class="info-label">Stock</div>
+            <div class="info-value">{{ product.stock }}</div>
+        </div>
+    </div>
+
+    <div>
+        <span class="status {% if product.is_active %}active{% else %}inactive{% endif %}">
+            {{ product.is_active|yesno:"Active,Inactive" }}
+        </span>
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="actions">
+        <!-- Edit -->
+        <a href="{% url 'sellers:edit_product' product.id %}" class="action-btn edit-btn">
+            ✏️ Edit Product
+        </a>
+
+        <!-- Upload Images -->
+        <a href="{% url 'sellers:add_image' product.id %}" class="action-btn upload-btn">
+            📸 Upload Images
+        </a>
+    </div>
+
 </div>
+
+<script>
+/* subtle hover feedback */
+document.querySelectorAll('.info-item').forEach(item => {
+    item.addEventListener('mouseenter', () => {
+        item.style.transform = 'translateY(-3px)';
+    });
+    item.addEventListener('mouseleave', () => {
+        item.style.transform = 'translateY(0)';
+    });
+});
+</script>
+
 {% endblock %}

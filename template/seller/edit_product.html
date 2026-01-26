@@ -2,29 +2,171 @@
 {% block title %}Edit Product{% endblock %}
 
 {% block content %}
-<div class="card">
+
+<style>
+/* ---------- Card ---------- */
+.edit-card {
+    max-width: 700px;
+    margin: 30px auto;
+    background: #ffffff;
+    padding: 32px;
+    border-radius: 16px;
+    box-shadow: 0 18px 40px rgba(0,0,0,0.08);
+    animation: slideFade 0.5s ease;
+}
+
+@keyframes slideFade {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.edit-card h3 {
+    margin-bottom: 22px;
+    font-size: 22px;
+    font-weight: 600;
+    color: #111827;
+}
+
+/* ---------- Form ---------- */
+.edit-form {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+}
+
+.edit-form textarea,
+.edit-form button,
+.toggle {
+    grid-column: span 2;
+}
+
+/* ---------- Inputs ---------- */
+.edit-form input,
+.edit-form textarea {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    font-size: 14px;
+    background: #f9fafb;
+    transition: all 0.25s ease;
+}
+
+.edit-form textarea {
+    min-height: 110px;
+    resize: vertical;
+}
+
+.edit-form input:focus,
+.edit-form textarea:focus {
+    outline: none;
+    border-color: #4f46e5;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(79,70,229,0.15);
+}
+
+/* ---------- Toggle ---------- */
+.toggle {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    color: #374151;
+}
+
+.toggle input {
+    width: 42px;
+    height: 22px;
+    appearance: none;
+    background: #d1d5db;
+    border-radius: 999px;
+    position: relative;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.toggle input::before {
+    content: "";
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    background: white;
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    transition: 0.3s;
+}
+
+.toggle input:checked {
+    background: #22c55e;
+}
+
+.toggle input:checked::before {
+    transform: translateX(20px);
+}
+
+/* ---------- Button ---------- */
+.edit-form button {
+    margin-top: 10px;
+    padding: 15px;
+    background: linear-gradient(135deg, #4f46e5, #4338ca);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.edit-form button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px rgba(79,70,229,0.35);
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 640px) {
+    .edit-form {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<div class="edit-card">
     <h3>Edit Product</h3>
 
-    <form
-        hx-post="{% url 'sellers:edit_product' product.id %}"
-        hx-target="#detail-box"
-        hx-swap="innerHTML">
-
+    <form method="POST" class="edit-form" onsubmit="handleUpdate()">
         {% csrf_token %}
 
-        <input name="name" value="{{ product.name }}">
-        <input name="price" value="{{ product.price }}">
-        <input name="desc_price" value="{{ product.discount_percentage }}">
-        <input name="stock" value="{{ product.stock }}">
-        <textarea name="descp">{{ product.descp }}</textarea>
+        <input name="name" value="{{ product.name }}" placeholder="Product Name" required>
+        <input name="price" value="{{ product.price }}" placeholder="Price" required>
+        <input name="desc_price" value="{{ product.discount_percentage }}" placeholder="Discount Price">
+        <input name="stock" value="{{ product.stock }}" placeholder="Stock" required>
 
-        <label>
+        <textarea name="descp" placeholder="Description">{{ product.descp }}</textarea>
+
+        <label class="toggle">
             <input type="checkbox" name="is_activate" value="true"
                    {% if product.is_active %}checked{% endif %}>
-            Active
+            Active Product
         </label>
 
-        <button type="submit">Update</button>
+        <button id="updateBtn" type="submit">Update Product</button>
     </form>
 </div>
+
+<script>
+function handleUpdate() {
+    const btn = document.getElementById("updateBtn");
+    btn.innerText = "Updating...";
+    btn.disabled = true;
+}
+</script>
+
 {% endblock %}
