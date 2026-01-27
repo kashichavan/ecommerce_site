@@ -225,10 +225,11 @@
                 <i class="fa-regular fa-eye"></i> View
             </button></a>
 
-
-            <button class="btn cart-btn">
+            <a href="{% url 'customers:add_to_cart' product.id %}">
+                <button class="btn cart-btn">
                 <i class="fa-solid fa-cart-plus"></i> Add
             </button>
+            </a>
         </div>
 
     </div>

@@ -1,0 +1,233 @@
+{% extends 'customer/base.html' %}
+{% block title %}My Cart | ShopKart{% endblock %}
+
+{% block content %}
+
+<style>
+/* ===== CART LAYOUT ===== */
+.cart-wrapper {
+    display: grid;
+    grid-template-columns: 3fr 1.2fr;
+    gap: 24px;
+}
+
+/* ===== LEFT CART ===== */
+.cart-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 22px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+}
+
+.cart-item {
+    display: flex;
+    gap: 18px;
+    padding: 18px 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.cart-item:last-child {
+    border-bottom: none;
+}
+
+/* ===== IMAGE ===== */
+.cart-img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+}
+
+/* ===== DETAILS ===== */
+.cart-details {
+    flex: 1;
+}
+
+.cart-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.cart-meta {
+    font-size: 13px;
+    color: #6b7280;
+    margin-bottom: 8px;
+}
+
+.cart-price {
+    font-size: 15px;
+    margin-bottom: 10px;
+}
+
+.cart-price .new {
+    font-weight: 600;
+    color: #16a34a;
+}
+
+.cart-price .old {
+    margin-left: 8px;
+    text-decoration: line-through;
+    color: #9ca3af;
+}
+
+/* ===== QUANTITY ===== */
+.qty-control {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.qty-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid #d1d5db;
+    background: white;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.qty-value {
+    font-weight: 600;
+}
+
+/* ===== REMOVE ===== */
+.remove-link {
+    display: inline-block;
+    margin-top: 10px;
+    color: #dc2626;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+/* ===== RIGHT PRICE BOX ===== */
+.price-box {
+    background: white;
+    border-radius: 14px;
+    padding: 22px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    height: fit-content;
+}
+
+.price-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    font-size: 14px;
+}
+
+.price-row.total {
+    font-size: 18px;
+    font-weight: 700;
+    border-top: 1px dashed #e5e7eb;
+    padding-top: 16px;
+}
+
+.checkout-btn {
+    margin-top: 22px;
+    width: 100%;
+    padding: 14px;
+    background: #fb641b;
+    color: white;
+    border: none;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 900px) {
+    .cart-wrapper {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<h2 style="margin-bottom:20px;">
+    🛒 My Cart ({{ total_products }} items)
+</h2>
+
+{% if cart_items %}
+<div class="cart-wrapper">
+
+    <!-- LEFT SIDE : CART ITEMS -->
+    <div class="cart-card">
+
+        {% for item in cart_items %}
+        <div class="cart-item">
+
+            <!-- PRODUCT IMAGE -->
+            <img
+                src="{% if item.image %}{{ item.image.image.url }}{% else %}https://via.placeholder.com/120{% endif %}"
+                class="cart-img"
+                alt="{{ item.product.name }}">
+
+            <!-- PRODUCT DETAILS -->
+            <div class="cart-details">
+
+                <div class="cart-title">
+                    {{ item.product.name }}
+                </div>
+
+                <div class="cart-meta">
+                    Category: {{ item.product.category_id.name }}
+                </div>
+
+                <div class="cart-price">
+                    <span class="new">₹ {{ item.final_price }}</span>
+                    <span class="old">₹ {{ item.product.price }}</span>
+                    ({{ item.product.discount_percentage }}% OFF)
+                </div>
+
+                <!-- QUANTITY CONTROLS (UI ONLY) -->
+                <div class="qty-control">
+                    <button class="qty-btn">−</button>
+                    <span class="qty-value">{{ item.quantity }}</span>
+                    <button class="qty-btn">+</button>
+                </div>
+
+                <!-- REMOVE (UI ONLY) -->
+                <a href="#" class="remove-link">
+                    <i class="fa-solid fa-trash"></i> Remove
+                </a>
+
+            </div>
+        </div>
+        {% endfor %}
+
+    </div>
+
+    <!-- RIGHT SIDE : PRICE DETAILS -->
+    <div class="price-box">
+        <h3 style="margin-bottom:16px;">PRICE DETAILS</h3>
+
+        <div class="price-row">
+            <span>Items ({{ total_products }})</span>
+            <span>₹ {{ total_sum }}</span>
+        </div>
+
+        <div class="price-row">
+            <span>Delivery Charges</span>
+            <span style="color:green;">FREE</span>
+        </div>
+
+        <div class="price-row total">
+            <span>Total Payable</span>
+            <span>₹ {{ total_sum }}</span>
+        </div>
+
+        <button class="checkout-btn">
+            PLACE ORDER
+        </button>
+    </div>
+
+</div>
+{% else %}
+<p style="text-align:center;font-size:18px;color:#6b7280;">
+    Your cart is empty 🛒
+</p>
+{% endif %}
+
+{% endblock %}

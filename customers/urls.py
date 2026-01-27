@@ -1,9 +1,11 @@
-from django.urls import path
+from django.urls  import path
+from .views import add_to_cart_session
 from .views import *
 
 
 app_name='customers'
 
 urlpatterns=[
-    path('',home,name='home')
+    path('cart/<int:pid>',add_to_cart_session,name='add_to_cart'),
+    path('cart_display/',display_cart_session,name='display_cart')
 ]
