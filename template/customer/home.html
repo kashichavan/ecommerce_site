@@ -4,35 +4,75 @@
 {% block content %}
 
 <style>
-/* ---------- Grid ---------- */
+/* ================= ROOT ================= */
+:root {
+    --primary: #ff9f00;
+    --dark: #111827;
+    --muted: #6b7280;
+    --success-bg: #dcfce7;
+    --success-text: #166534;
+    --error-bg: #fee2e2;
+    --error-text: #991b1b;
+}
+
+/* ================= MESSAGES ================= */
+.message-wrapper {
+    position: fixed;
+    top: 90px;
+    right: 24px;
+    z-index: 999;
+}
+
+.message {
+    padding: 14px 20px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    min-width: 260px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+    animation: slideIn 0.35s ease;
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(40px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+.message.success {
+    background: var(--success-bg);
+    color: var(--success-text);
+}
+
+.message.error {
+    background: var(--error-bg);
+    color: var(--error-text);
+}
+
+/* ================= GRID ================= */
 .product-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 24px;
+    gap: 26px;
+    padding: 20px 0;
 }
 
-/* ---------- Card ---------- */
+/* ================= CARD ================= */
 .product-card {
-    background: #ffffff;
-    border-radius: 10px;
+    background: #fff;
+    border-radius: 14px;
     padding: 16px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    transition: all 0.25s ease;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    transition: 0.3s ease;
     position: relative;
-    animation: fadeUp 0.4s ease;
-}
-
-@keyframes fadeUp {
-    from { opacity: 0; transform: translateY(12px); }
-    to   { opacity: 1; transform: translateY(0); }
 }
 
 .product-card:hover {
     transform: translateY(-6px);
-    box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+    box-shadow: 0 16px 35px rgba(0,0,0,0.12);
 }
 
-/* ---------- Badge ---------- */
+/* ================= BADGE ================= */
 .badge {
     position: absolute;
     top: 12px;
@@ -53,16 +93,15 @@
     color: #b91c1c;
 }
 
-/* ---------- Image ---------- */
+/* ================= IMAGE ================= */
 .image-box {
-    height: 190px;
+    height: 200px;
     background: #f9fafb;
-    border-radius: 8px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-bottom: 12px;
-    overflow: hidden;
 }
 
 .image-box img {
@@ -71,56 +110,50 @@
     object-fit: contain;
 }
 
-/* ---------- Name ---------- */
+/* ================= NAME ================= */
 .product-name {
     font-size: 15px;
-    font-weight: 500;
+    font-weight: 600;
     margin-bottom: 6px;
     height: 40px;
     overflow: hidden;
 }
 
-/* ---------- Price (FLIPKART STYLE – FIXED) ---------- */
+/* ================= PRICE ================= */
 .price-box {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    margin-top: 8px;
-    margin-bottom: 8px;
+    margin: 8px 0;
 }
 
 .price-main {
     font-size: 22px;
     font-weight: 700;
-    color: #111827;
+    color: var(--dark);
 }
 
 .price-meta {
     display: flex;
-    align-items: center;
     gap: 10px;
+    font-size: 14px;
 }
 
 .price-original {
-    font-size: 14px;
-    color: #6b7280;
     text-decoration: line-through;
+    color: var(--muted);
 }
 
 .price-off {
-    font-size: 14px;
-    font-weight: 600;
     color: #16a34a;
+    font-weight: 600;
 }
 
-/* ---------- Stock ---------- */
+/* ================= STOCK ================= */
 .stock {
     font-size: 13px;
     margin: 6px 0 12px;
-    color: #6b7280;
+    color: var(--muted);
 }
 
-/* ---------- Actions ---------- */
+/* ================= BUTTONS ================= */
 .actions {
     display: flex;
     gap: 10px;
@@ -129,127 +162,119 @@
 .btn {
     flex: 1;
     padding: 10px;
-    border-radius: 6px;
+    border-radius: 8px;
     font-size: 14px;
     font-weight: 600;
     border: none;
     cursor: pointer;
-    transition: 0.2s ease;
 }
 
 .view-btn {
     background: #f1f5f9;
 }
 
-.view-btn:hover {
-    background: #e2e8f0;
-}
-
 .cart-btn {
-    background: #ff9f00;
-    color: white;
+    background: var(--primary);
+    color: #fff;
 }
 
-.cart-btn:hover {
-    background: #fb8c00;
+.login-btn {
+    background: #2563eb;
+    color: #fff;
 }
 
-/* ---------- Empty ---------- */
+/* ================= EMPTY ================= */
 .empty {
     text-align: center;
-    padding: 60px;
-    color: #6b7280;
+    padding: 80px;
+    color: var(--muted);
 }
 
-/* ---------- Mobile ---------- */
-@media (max-width: 600px) {
-    .price-main {
-        font-size: 20px;
-    }
+/* ================= MOBILE ================= */
+@media(max-width:600px){
+    .price-main { font-size: 20px; }
 }
 </style>
 
+<!-- ================= MESSAGES ================= -->
+{% if messages %}
+<div class="message-wrapper">
+    {% for message in messages %}
+        <div class="message {{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- ================= PRODUCTS ================= -->
 {% if products %}
 <div class="product-grid">
 
-    {% for product in products %}
-    <div class="product-card">
+{% for product in products %}
+<div class="product-card">
 
-        <!-- Status Badge -->
-        <span class="badge {% if product.is_active %}active{% else %}inactive{% endif %}">
-            {{ product.is_active|yesno:"Available,Unavailable" }}
-        </span>
+    <span class="badge {% if product.is_active %}active{% else %}inactive{% endif %}">
+        {{ product.is_active|yesno:"Available,Unavailable" }}
+    </span>
 
-        <!-- Image -->
-        <div class="image-box">
-            {% with product.product_image_set.first as img %}
-                {% if img and img.image %}
-                    <img src="{{ img.image.url }}" alt="{{ product.name }}">
-                {% else %}
-                    <i class="fa-regular fa-image" style="font-size:34px;color:#9ca3af"></i>
-                {% endif %}
-            {% endwith %}
-        </div>
-
-        <!-- Product Name -->
-        <div class="product-name">{{ product.name }}</div>
-
-        <!-- PRICE (CLEAR & LARGE) -->
-        <div class="price-box">
-            <div class="price-main">
-                ₹{{ product.discount_price|floatformat:0 }}
-            </div>
-
-            <div class="price-meta">
-                <span class="price-original">
-                    ₹{{ product.price|floatformat:0 }}
-                </span>
-                <span class="price-off">
-                    {{ product.discount_percentage }}% off
-                </span>
-            </div>
-        </div>
-
-        <!-- Stock -->
-        <div class="stock">
-            {% if product.stock > 0 %}
-                In Stock ({{ product.stock }})
+    <div class="image-box">
+        {% with product.product_image_set.first as img %}
+            {% if img and img.image %}
+                <img src="{{ img.image.url }}">
             {% else %}
-                Out of Stock
+                <i class="fa-regular fa-image" style="font-size:36px;color:#9ca3af"></i>
             {% endif %}
+        {% endwith %}
+    </div>
+
+    <div class="product-name">{{ product.name }}</div>
+
+    <div class="price-box">
+        <div class="price-main">₹{{ product.discount_price|floatformat:0 }}</div>
+        <div class="price-meta">
+            <span class="price-original">₹{{ product.price|floatformat:0 }}</span>
+            <span class="price-off">{{ product.discount_percentage }}% off</span>
         </div>
+    </div>
 
-        <!-- Actions -->
-        <div class="actions">
-            <a href="{% url 'product:product_detail' product.id %}"><button class="btn view-btn">
+    <div class="stock">
+        {% if product.stock > 0 %}
+            In Stock ({{ product.stock }})
+        {% else %}
+            Out of Stock
+        {% endif %}
+    </div>
+
+    <div class="actions">
+        <a href="{% url 'product:product_detail' product.id %}">
+            <button class="btn view-btn">
                 <i class="fa-regular fa-eye"></i> View
-            </button></a>
+            </button>
+        </a>
 
-            <a href="{% url 'customers:add_to_cart' product.id %}">
-                <button class="btn cart-btn">
+        {% if user.is_authenticated %}
+        <a href="{% url 'customers:add_to_cart' product.id %}">
+            <button class="btn cart-btn">
                 <i class="fa-solid fa-cart-plus"></i> Add
             </button>
-            </a>
-        </div>
-
+        </a>
+        {% else %}
+        <a href="{% url 'customers:login_customer' %}">
+            <button class="btn login-btn">
+                <i class="fa-solid fa-lock"></i> Login
+            </button>
+        </a>
+        {% endif %}
     </div>
-    {% endfor %}
+
+</div>
+{% endfor %}
 
 </div>
 {% else %}
 <div class="empty">
-    <i class="fa-regular fa-face-frown" style="font-size:36px"></i>
+    <i class="fa-regular fa-face-frown" style="font-size:42px"></i>
     <p>No products available</p>
 </div>
 {% endif %}
-
-<script>
-/* subtle hover polish */
-document.querySelectorAll('.product-card').forEach(card => {
-    card.addEventListener('mouseenter', () => {
-        card.style.transition = '0.25s';
-    });
-});
-</script>
 
 {% endblock %}

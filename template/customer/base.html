@@ -2,170 +2,783 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}ShopKart{% endblock %}</title>
 
-    <!-- 🔥 Google Fonts (Trending) -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600&display=swap" rel="stylesheet">
-
-    <!-- 🔥 Font Awesome CDN -->
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-          integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
-          crossorigin="anonymous" referrerpolicy="no-referrer" />
-
     <style>
+        /* ========== CSS VARIABLES ========== */
+        :root {
+            --primary: #f97316;
+            --primary-dark: #ea580c;
+            --primary-light: #fdba74;
+            --secondary: #1f2937;
+            --light: #f9fafb;
+            --white: #ffffff;
+            --gray: #6b7280;
+            --gray-light: #e5e7eb;
+            --success: #10b981;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.12);
+            --radius: 12px;
+            --radius-sm: 8px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ========== BASE STYLES ========== */
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Inter', 'Poppins', system-ui, sans-serif;
+            box-sizing: border-box;
         }
 
         body {
-            background: #f1f3f6;
-            color: #111827;
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--light);
+            color: var(--secondary);
+            line-height: 1.6;
+            overflow-x: hidden;
         }
 
-        /* ---------- Navbar ---------- */
-        .navbar {
-            background: #2874f0;
-            color: white;
-            padding: 14px 40px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-
-        .logo {
+        h1, h2, h3, h4, h5, h6 {
             font-family: 'Poppins', sans-serif;
-            font-size: 22px;
             font-weight: 600;
-            letter-spacing: 0.5px;
         }
 
-        /* ---------- Search ---------- */
-        .search-box {
-            flex: 1;
-            max-width: 500px;
-            margin: 0 30px;
-            display: flex;
-            background: white;
-            border-radius: 6px;
-            overflow: hidden;
+        a {
+            text-decoration: none;
+            color: inherit;
+            transition: var(--transition);
         }
 
-        .search-box input {
-            flex: 1;
-            padding: 10px 14px;
+        button, input {
+            font-family: inherit;
             border: none;
-            font-size: 14px;
-        }
-
-        .search-box input:focus {
             outline: none;
         }
 
-        .search-box button {
-            background: #facc15;
-            border: none;
-            padding: 0 16px;
-            cursor: pointer;
+        /* ========== TOAST NOTIFICATIONS ========== */
+        .toast-container {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 350px;
         }
 
-        /* ---------- Nav Links ---------- */
+        .toast {
+            background: var(--white);
+            padding: 18px 22px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transform: translateX(400px);
+            opacity: 0;
+            animation: slideIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+            border-left: 4px solid var(--primary);
+        }
+
+        .toast.success {
+            border-left-color: var(--success);
+        }
+
+        .toast i {
+            font-size: 20px;
+            color: var(--primary);
+        }
+
+        .toast.success i {
+            color: var(--success);
+        }
+
+        @keyframes slideIn {
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                transform: translateX(400px);
+            }
+        }
+
+        /* ========== NAVBAR ========== */
+        .navbar {
+            background: var(--white);
+            padding: 0 40px;
+            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: var(--transition);
+        }
+
+        .navbar.scrolled {
+            height: 64px;
+            box-shadow: 0 5px 20px rgba(249, 115, 22, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: -0.5px;
+        }
+
+        .logo i {
+            font-size: 28px;
+            background: linear-gradient(135deg, var(--primary), #fb923c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* ========== SEARCH BAR ========== */
+        .search-container {
+            flex: 1;
+            max-width: 600px;
+            margin: 0 40px;
+            position: relative;
+        }
+
+        .search-box {
+            width: 100%;
+            background: var(--white);
+            border: 2px solid var(--gray-light);
+            border-radius: 50px;
+            padding: 12px 24px;
+            font-size: 15px;
+            transition: var(--transition);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+        }
+
+        .search-box:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.25);
+        }
+
+        .search-btn:hover {
+            transform: translateY(-50%) scale(1.05);
+            box-shadow: 0 6px 16px rgba(249, 115, 22, 0.35);
+        }
+
+        /* ========== NAV LINKS ========== */
         .nav-links {
             display: flex;
             align-items: center;
-            gap: 22px;
-            font-size: 14px;
+            gap: 28px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
             font-weight: 500;
+            font-size: 15px;
+            padding: 10px 16px;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            position: relative;
         }
 
-        .nav-links a {
+        .nav-link:hover {
+            background: rgba(249, 115, 22, 0.08);
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .nav-link.cart {
+            background: linear-gradient(135deg, var(--primary), #fb923c);
             color: white;
-            text-decoration: none;
+            padding: 10px 22px;
+            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.25);
         }
 
-        .nav-links a:hover {
-            text-decoration: underline;
+        .nav-link.cart:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 6px 20px rgba(249, 115, 22, 0.35);
         }
 
-        /* ---------- Layout ---------- */
+        .cart-count {
+            background: var(--white);
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: 700;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 4px;
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            background: rgba(249, 115, 22, 0.1);
+            border-radius: 50px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .user-badge i {
+            font-size: 18px;
+        }
+
+        /* ========== CONTAINER & CARDS ========== */
         .container {
-            max-width: 1300px;
-            margin: auto;
-            padding: 30px 20px;
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+            animation: fadeIn 0.8s ease-out;
         }
 
-        /* ---------- Footer ---------- */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 28px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            border: 1px solid transparent;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+            border-color: rgba(249, 115, 22, 0.1);
+        }
+
+        /* ========== FOOTER ========== */
         .footer {
-            margin-top: 40px;
-            background: #172337;
-            color: #cbd5e1;
-            padding: 30px;
+            background: var(--secondary);
+            color: var(--white);
+            padding: 60px 40px 30px;
+            margin-top: 80px;
+            border-radius: var(--radius) var(--radius) 0 0;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            padding-bottom: 40px;
+        }
+
+        .footer-section h3 {
+            color: var(--primary-light);
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        .footer-section a {
+            display: block;
+            color: #d1d5db;
+            margin-bottom: 12px;
+            transition: var(--transition);
+        }
+
+        .footer-section a:hover {
+            color: var(--primary);
+            padding-left: 5px;
+        }
+
+        .footer-bottom {
             text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid #374151;
+            color: #9ca3af;
             font-size: 14px;
         }
 
-        /* ---------- Mobile ---------- */
-        @media (max-width: 768px) {
-            .navbar {
-                flex-direction: column;
-                gap: 10px;
-                padding: 16px;
-            }
+        /* ========== LOADING OVERLAY ========== */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
 
-            .search-box {
-                width: 100%;
-                margin: 10px 0;
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--gray-light);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ========== MOBILE RESPONSIVE ========== */
+        @media (max-width: 992px) {
+            .navbar {
+                padding: 0 20px;
+                flex-wrap: wrap;
+                height: auto;
+                padding: 15px 20px;
+            }
+            
+            .search-container {
+                order: 3;
+                flex: 100%;
+                margin: 20px 0 0 0;
+            }
+            
+            .nav-links {
+                gap: 15px;
+            }
+            
+            .nav-link span:not(.cart-count) {
+                display: none;
+            }
+            
+            .nav-link {
+                padding: 10px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .logo {
+                font-size: 22px;
+            }
+            
+            .container {
+                padding: 0 15px;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .footer {
+                padding: 40px 20px 20px;
             }
         }
     </style>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
-
-<!-- 🔹 NAVBAR -->
-<div class="navbar">
-    <div class="logo">
-        <i class="fa-solid fa-bag-shopping"></i> ShopKart
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loader"></div>
     </div>
 
-    <div class="search-box">
-        <input type="text" placeholder="Search for products, brands and more">
-        <button><i class="fa-solid fa-magnifying-glass"></i></button>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="toast {% if message.tags %}{{ message.tags }}{% endif %}">
+                    <i class="fas {% if message.tags == 'success' %}fa-check-circle{% else %}fa-info-circle{% endif %}"></i>
+                    <span>{{ message }}</span>
+                </div>
+            {% endfor %}
+        {% endif %}
     </div>
 
-    <div class="nav-links">
-        <a href="#"><i class="fa-solid fa-user"></i> Login</a>
-        <a href="#"><i class="fa-solid fa-cart-shopping"></i> Cart</a>
-    </div>
-</div>
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <a href="/" class="logo">
+            <i class="fas fa-bag-shopping"></i>
+            ShopKart
+        </a>
 
-<!-- 🔹 PAGE CONTENT -->
-<div class="container">
-    {% block content %}{% endblock %}
-</div>
+        <!-- Search -->
+        <div class="search-container">
+            <form method="get" action="{% url 'product:search_product' %}">
+                <input 
+                    type="text" 
+                    name="q" 
+                    class="search-box" 
+                    placeholder="Search for products, brands and more"
+                    required
+                >
+                <button type="submit" class="search-btn">
+                    <i class="fas fa-magnifying-glass"></i>
+                </button>
+            </form>
+        </div>
 
-<!-- 🔹 FOOTER -->
-<div class="footer">
-    © 2026 ShopKart • Built with Django • Inspired by Flipkart UI
-</div>
+        <!-- Auth Links -->
+        <div class="nav-links">
+            {% if user.is_authenticated %}
+                <div class="user-badge">
+                    <i class="fas fa-user-circle"></i>
+                    <span>{{ user.username }}</span>
+                </div>
+                
+                <a href="{% url 'customers:logout' %}" class="nav-link">
+                    <i class="fas fa-right-from-bracket"></i>
+                    <span>Logout</span>
+                </a>
+            {% else %}
+                <a href="{% url 'customers:login_customer' %}" class="nav-link">
+                    <i class="fas fa-user"></i>
+                    <span>Login</span>
+                </a>
+            {% endif %}
 
-<script>
-/* small UX improvement */
-document.querySelectorAll('.nav-links a').forEach(link => {
-    link.addEventListener('mouseenter', () => {
-        link.style.opacity = '0.85';
-    });
-    link.addEventListener('mouseleave', () => {
-        link.style.opacity = '1';
-    });
-});
-</script>
+            <!-- Fixed Cart Link - Now goes to cart page -->
+            <a href="{% url 'cart:view_cart' %}" class="nav-link cart">
+                <i class="fas fa-cart-shopping"></i>
+                <span>Cart</span>
+                <span class="cart-count" id="cartCount">0</span>
+            </a>
+        </div>
+    </nav>
 
+    <!-- Main Content -->
+    <main class="container">
+        {% block content %}
+        <!-- Example product card for reference -->
+        <div class="card" style="max-width: 400px; margin: 40px auto; text-align: center;">
+            <h2 style="color: var(--primary); margin-bottom: 15px;">Welcome to ShopKart</h2>
+            <p style="color: var(--gray); margin-bottom: 20px;">Modern e-commerce with orange & white theme</p>
+            <div style="background: linear-gradient(135deg, #fef3c7, #fed7aa); height: 200px; border-radius: var(--radius-sm); margin-bottom: 20px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-gem" style="font-size: 60px; color: var(--primary); opacity: 0.8;"></i>
+            </div>
+            <p>Your content will appear here</p>
+        </div>
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>ShopKart</h3>
+                <p>Modern e-commerce platform with the best user experience and quality products.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <a href="#">Home</a>
+                <a href="#">Products</a>
+                <a href="#">Categories</a>
+                <a href="#">Deals</a>
+            </div>
+            <div class="footer-section">
+                <h3>Support</h3>
+                <a href="#">Contact Us</a>
+                <a href="#">FAQ</a>
+                <a href="#">Shipping</a>
+                <a href="#">Returns</a>
+            </div>
+            <div class="footer-section">
+                <h3>Connect</h3>
+                <a href="#"><i class="fab fa-twitter"></i> Twitter</a>
+                <a href="#"><i class="fab fa-facebook"></i> Facebook</a>
+                <a href="#"><i class="fab fa-instagram"></i> Instagram</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            © 2026 ShopKart • Built with Django • Modern Orange Theme
+        </div>
+    </footer>
+
+    <script>
+        // CSRF Token for AJAX requests
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        const csrftoken = getCookie('csrftoken');
+
+        // Cart Management Functions
+        class CartManager {
+            constructor() {
+                this.cartCount = 0;
+                this.init();
+            }
+
+            async init() {
+                await this.fetchCartCount();
+                this.setupGlobalListeners();
+            }
+
+            async fetchCartCount() {
+                try {
+                    // You can implement an API endpoint to get cart count
+                    // For now, we'll use a placeholder
+                    // const response = await fetch('/api/cart/count/');
+                    // const data = await response.json();
+                    // this.cartCount = data.count || 0;
+                    
+                    // Update UI
+                    this.updateCartCountUI();
+                } catch (error) {
+                    console.error('Error fetching cart count:', error);
+                }
+            }
+
+            updateCartCountUI() {
+                const cartCountElement = document.getElementById('cartCount');
+                if (cartCountElement) {
+                    cartCountElement.textContent = this.cartCount;
+                    // Animate count change
+                    if (this.cartCount > 0) {
+                        cartCountElement.style.animation = 'none';
+                        setTimeout(() => {
+                            cartCountElement.style.animation = 'bounce 0.3s ease';
+                        }, 10);
+                    }
+                }
+            }
+
+            async addToCart(productId, quantity = 1) {
+                showLoading();
+                try {
+                    const response = await fetch('/cart/add/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrftoken,
+                        },
+                        body: JSON.stringify({
+                            product_id: productId,
+                            quantity: quantity
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok && data.success) {
+                        this.cartCount = data.cart_count || this.cartCount + 1;
+                        this.updateCartCountUI();
+                        showToast('Product added to cart successfully!', 'success');
+                        return true;
+                    } else {
+                        showToast(data.message || 'Failed to add to cart', 'error');
+                        return false;
+                    }
+                } catch (error) {
+                    console.error('Error adding to cart:', error);
+                    showToast('Network error. Please try again.', 'error');
+                    return false;
+                } finally {
+                    hideLoading();
+                }
+            }
+
+            setupGlobalListeners() {
+                // Listen for add-to-cart events from product pages
+                document.addEventListener('addToCart', (event) => {
+                    const { productId, quantity } = event.detail;
+                    this.addToCart(productId, quantity);
+                });
+            }
+        }
+
+        // Toast System
+        function showToast(message, type = 'success') {
+            const toastContainer = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            let icon = 'fa-info-circle';
+            let borderColor = 'var(--primary)';
+            
+            switch(type) {
+                case 'success':
+                    icon = 'fa-check-circle';
+                    borderColor = 'var(--success)';
+                    break;
+                case 'error':
+                    icon = 'fa-times-circle';
+                    borderColor = '#ef4444';
+                    break;
+                case 'warning':
+                    icon = 'fa-exclamation-triangle';
+                    borderColor = '#f59e0b';
+                    break;
+            }
+            
+            toast.innerHTML = `
+                <i class="fas ${icon}"></i>
+                <span>${message}</span>
+            `;
+            toast.style.borderLeftColor = borderColor;
+            
+            toastContainer.appendChild(toast);
+            
+            // Show toast
+            setTimeout(() => {
+                toast.style.animation = 'slideIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards';
+            }, 10);
+            
+            // Remove toast after 5 seconds
+            setTimeout(() => {
+                toast.style.animation = 'fadeOut 0.5s ease forwards';
+                setTimeout(() => toast.remove(), 500);
+            }, 5000);
+        }
+
+        // Loading Overlay
+        function showLoading() {
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.classList.add('active');
+        }
+
+        function hideLoading() {
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.classList.remove('active');
+        }
+
+        // Initialize cart manager
+        const cartManager = new CartManager();
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Toast messages animation (for Django messages)
+        document.addEventListener('DOMContentLoaded', () => {
+            const toasts = document.querySelectorAll('.toast');
+            toasts.forEach((toast, index) => {
+                // Show toast with delay
+                setTimeout(() => {
+                    toast.style.animation = 'slideIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards';
+                }, index * 300);
+                
+                // Hide toast after 5 seconds
+                setTimeout(() => {
+                    toast.style.animation = 'fadeOut 0.5s ease forwards';
+                    setTimeout(() => toast.remove(), 500);
+                }, 5000 + (index * 300));
+            });
+
+            // Add hover effect to cards
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    card.style.transform = 'translateY(-8px)';
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'translateY(0)';
+                });
+            });
+
+            // Search box focus effect
+            const searchBox = document.querySelector('.search-box');
+            if (searchBox) {
+                searchBox.addEventListener('focus', () => {
+                    searchBox.parentElement.style.transform = 'scale(1.02)';
+                });
+                searchBox.addEventListener('blur', () => {
+                    searchBox.parentElement.style.transform = 'scale(1)';
+                });
+            }
+
+            // Update cart count from session (you can implement this with your backend)
+            // For now, we'll set it to 0
+            document.getElementById('cartCount').textContent = '0';
+        });
+
+        // Add bounce animation for cart
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes bounce {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.3); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Global function to add product to cart
+        window.addToCart = function(productId, quantity = 1) {
+            cartManager.addToCart(productId, quantity);
+        };
+
+        // Dispatch add to cart event (can be called from product pages)
+        window.dispatchAddToCartEvent = function(productId, quantity = 1) {
+            const event = new CustomEvent('addToCart', {
+                detail: { productId, quantity }
+            });
+            document.dispatchEvent(event);
+        };
+    </script>
 </body>
 </html>
